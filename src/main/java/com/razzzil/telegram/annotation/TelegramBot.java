@@ -16,6 +16,6 @@ import java.lang.annotation.Target;
 public @interface TelegramBot {
     String value();
 
-    @AliasFor(annotation = Component.class)
+    @AliasFor(annotation = Component.class, value = "value")
     String beanName() default "";
 }
