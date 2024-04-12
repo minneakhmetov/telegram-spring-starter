@@ -111,6 +111,7 @@ public class HandlerProcessor {
                     Object bean = applicationContext.getBean(handlerClass);
                     TelegramBot telegramBot = handlerClass.getAnnotation(TelegramBot.class);
                     String botName = telegramBot.value();
+                    log.info("Initializing Telegram Bot: [{}]", botName);
                     if (!propertyConfiguration.getBots().containsKey(botName)) {
                         throw new BotInitializingException("Bot [" + botName + "] is not configured");
                     }

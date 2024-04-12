@@ -15,6 +15,9 @@ import java.util.Map;
 public class PropertyConfiguration {
 
     private Map<String, BotTokenDto> bots;
+
+    private boolean singletonBot = false;
+
     private List<String> basePackages = Collections.singletonList("*");
 
 
