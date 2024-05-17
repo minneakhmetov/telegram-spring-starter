@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 @Slf4j
 @Service
@@ -49,7 +48,7 @@ public class HandlerProcessor {
 
 
     public void invokeCallbackQuery(Bot bot, Update update) {
-        BotMethodsHolder.BotMethods botMethods = BotMethodsHolder.getBotMethods(bot.getName());
+        BotMethods botMethods = BotMethodsHolder.getBotMethods(bot.getName());
         String message = update.getCallbackQuery().getData();
         try {
             CallbackDataDto callbackDataDto = OBJECT_MAPPER.readValue(message, CallbackDataDto.class);
@@ -72,7 +71,7 @@ public class HandlerProcessor {
     }
 
     public void invokeMessage(Bot bot, Update update) {
-        BotMethodsHolder.BotMethods botMethods = BotMethodsHolder.getBotMethods(bot.getName());
+        BotMethods botMethods = BotMethodsHolder.getBotMethods(bot.getName());
         String message = update.getMessage().getText();
         List<MessageHandlerInvocation> invocations = botMethods.getMessageHandlerByRegex(message);
         for (MessageHandlerInvocation messageHandlerInvocation : invocations) {
@@ -111,6 +110,7 @@ public class HandlerProcessor {
                     Object bean = applicationContext.getBean(handlerClass);
                     TelegramBot telegramBot = handlerClass.getAnnotation(TelegramBot.class);
                     String botName = telegramBot.value();
+                    BotMethods botMethods = BotMethodsHolder.createBotMethods(botName);
                     log.info("Initializing Telegram Bot: [{}]", botName);
                     if (!propertyConfiguration.getBots().containsKey(botName)) {
                         throw new BotInitializingException("Bot [" + botName + "] is not configured");
@@ -118,7 +118,6 @@ public class HandlerProcessor {
                     for (Method method : handlerClass.getMethods()) {
                         log.info("Initializing handlers for {}", botName);
                         for (Annotation annotation : method.getAnnotations()) {
-                            BotMethodsHolder.BotMethods botMethods = BotMethodsHolder.createBotMethods(botName);
                             processHandlerAnnotations(method, annotation, bean, botMethods);
                         }
                     }
@@ -130,13 +129,15 @@ public class HandlerProcessor {
     }
 
     private void processHandlerAnnotations(Method method, Annotation annotation, Object bean,
-                                           BotMethodsHolder.BotMethods botMethods) throws BotInitializingException {
+                                           BotMethods botMethods) throws BotInitializingException {
         HandlerInvocation handlerInvocation = new HandlerInvocation(method, bean);
         if (annotation.annotationType().equals(CallbackQueryHandler.class)) {
-            botMethods.addCallbackHandler(handlerInvocation);
+            CallbackQueryHandler callbackQueryHandler = (CallbackQueryHandler) annotation;
+            botMethods.addCallbackHandler(handlerInvocation, callbackQueryHandler.value());
         }
         if (annotation.annotationType().equals(MessageQueryHandler.class)) {
-            botMethods.addMessageHandler(handlerInvocation);
+            MessageQueryHandler messageQueryHandler = (MessageQueryHandler) annotation;
+            botMethods.addMessageHandler(handlerInvocation, messageQueryHandler.value());
         }
     }
 

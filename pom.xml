@@ -11,9 +11,26 @@
 
     <groupId>com.razzzil</groupId>
     <artifactId>telegram-spring-starter</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.7-SNAPSHOT</version>
     <name>telegram-spring-starter</name>
     <description>telegram-spring-starter</description>
+
+    <repositories>
+        <repository>
+            <id>gitlab-maven</id>
+            <url>https://gitlab.com/api/v4/projects/56779567/packages/maven</url>
+        </repository>
+    </repositories>
+    <distributionManagement>
+        <repository>
+            <id>gitlab-maven</id>
+            <url>https://gitlab.com/api/v4/projects/56779567/packages/maven</url>
+        </repository>
+        <snapshotRepository>
+            <id>gitlab-maven</id>
+            <url>https://gitlab.com/api/v4/projects/56779567/packages/maven</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <java.version>21</java.version>
